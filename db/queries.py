@@ -8,11 +8,13 @@ task_table = """
 # CRUD - CREATE - READ - UPDATE - DELETE
 # INSERT SELECT UPDATE DELETE
 
-insert_task = "INSERT INTO tasks (task) VALUES (?)"
+insert_task = "INSERT INTO tasks (task, completed, date) VALUES (?, ?, ?)"
 
-select_task = 'SELECT id, task FROM tasks'
+select_task = 'SELECT id, task, completed, date FROM tasks'
 
 update_task = "UPDATE tasks SET task = ? WHERE id = ?"
 
 delete_task = "DELETE FROM tasks WHERE id = ?"
+
+
 
