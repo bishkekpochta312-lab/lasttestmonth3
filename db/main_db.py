@@ -4,14 +4,20 @@ from config import path_db
 from datetime import datetime
 
 
-def init_db():
-    conn = sqlite3.connect(path_db)
-    cursor = conn.cursor()
-    cursor.execute(queries.task_table)
-    print('БД подключена!')
-    conn.commit()
-    conn.close()
+# def init_db():
+#     conn = sqlite3.connect(path_db)
+#     cursor = conn.cursor()
+#     cursor.execute(queries.task_table)
+#     print('БД подключена!')
+#     conn.commit()
+#     conn.close()
 
+def init_db():
+    with sqlite3.connect(path_db) as conn:
+        cursor = conn.cursor()
+        cursor.execute(queries.task_table)
+    print('БД подключена!')
+  
 
 def add_task(task):
     conn = sqlite3.connect(path_db)
@@ -22,6 +28,14 @@ def add_task(task):
     conn.commit()
     task_id = cursor.lastrowid 
     conn.close()
+    return task_id
+
+def add_task(task):
+    with sqlite3.connect(path_db) as conn:
+        cursor = conn.cursor()
+        current_date = datetime.now().strftime("%Y-%m-%d %H:%M")
+        cursor.execute(queries.insert_task,(task,0,current_date))
+        task_id = cursor.lastrowid 
     return task_id
 
 def update_task(task_id, new_task=None,completed=None):
@@ -42,10 +56,34 @@ def delete_task(task_id):
     conn.commit()
     conn.close()
 
-def get_tasks():
+# def get_tasks():
+#     conn = sqlite3.connect(path_db)
+#     cursor = conn.cursor()
+#     cursor.execute(queries.select_task)
+#     tasks = cursor.fetchall() 
+#     conn.close()
+#     return tasks  
+
+
+def get_tasks(filter_type="all"):
     conn = sqlite3.connect(path_db)
     cursor = conn.cursor()
-    cursor.execute(queries.select_task)
-    tasks = cursor.fetchall() 
+    if filter_type == "all":
+        cursor.execute(queries.select_task)
+    elif filter_type == "completed":
+        cursor.execute(queries.select_task_completed)
+    elif filter_type == "uncompleted":
+        cursor.execute(queries.select_task_uncompleted)
+
+    tasks = cursor.fetchall()
     conn.close()
-    return tasks  
+    return tasks
+
+def delete_completed_tasks():
+    conn = sqlite3.connect(path_db)
+    cursor = conn.cursor()
+
+    cursor.execute("DELETE FROM tasks WHERE completed = 1")
+
+    conn.commit()
+    conn.close()

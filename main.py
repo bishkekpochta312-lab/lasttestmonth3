@@ -7,6 +7,26 @@ def main(page: ft.Page):
 
     task_list = ft.Column()
 
+    filter_type = "all"
+
+    def clear_completed(_):
+
+        main_db.delete_completed_tasks()
+        new_controls = []
+
+        for row in task_list.controls:
+            checkbox = row.controls[0] 
+            if not checkbox.value:
+                new_controls.append(row)
+
+        task_list.controls = new_controls
+
+
+    def load_task():
+        task_list.controls.clear()
+        for task_id, task, completed, date in main_db.get_tasks(filter_type=filter_type):
+            task_list.controls.append(view_tasks(task_id=task_id,task_text=task,completed=completed,date=date))
+
     def delete_task(task_id, row):
             main_db.delete_task(task_id=task_id)  
             task_list.controls.remove(row)        
@@ -75,15 +95,34 @@ def main(page: ft.Page):
     task_input = ft.TextField(label='Введите задачу', expand=True, on_submit=add_task_db)
     send_button = ft.ElevatedButton('SEND', on_click=add_task_db)
 
-    tasks = main_db.get_tasks()
-    for task_id, task_text, completed, date in tasks:
-        task_list.controls.append(
-            view_tasks(task_id=task_id, task_text=task_text, completed=completed, date=date)
-        )
-    main_objects = ft.Row([task_input, send_button])
+    # tasks = main_db.get_tasks()
+    # for task_id, task_text, completed, date in tasks:
+    #     task_list.controls.append(
+    #         view_tasks(task_id=task_id, task_text=task_text, completed=completed, date=date)
+    #     )
 
-    page.add(main_objects, task_list)
+    clear_button = ft.ElevatedButton("Очистить выполненные",on_click=clear_completed)
+    
+    main_objects = ft.Row([task_input, send_button, clear_button])
 
+    def set_filter(filter_value):
+        nonlocal filter_type
+        filter_type = filter_value
+
+        print(filter_type)
+        load_task()
+
+    
+
+    filter_buttons = ft.Row([
+        ft.ElevatedButton("All tasks", on_click=lambda e: set_filter("all")),
+        ft.ElevatedButton("in process",on_click=lambda e: set_filter("uncompleted")),
+        ft.ElevatedButton("Done",on_click=lambda e: set_filter("completed"))
+    ],alignment=ft.MainAxisAlignment.SPACE_EVENLY)
+
+
+    page.add(main_objects,filter_buttons, task_list)
+    load_task()
 
 if __name__ == '__main__':
     main_db.init_db()
