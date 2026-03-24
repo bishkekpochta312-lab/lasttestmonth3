@@ -4,14 +4,6 @@ from config import path_db
 from datetime import datetime
 
 
-# def init_db():
-#     conn = sqlite3.connect(path_db)
-#     cursor = conn.cursor()
-#     cursor.execute(queries.task_table)
-#     print('БД подключена!')
-#     conn.commit()
-#     conn.close()
-
 def init_db():
     with sqlite3.connect(path_db) as conn:
         cursor = conn.cursor()
@@ -56,13 +48,6 @@ def delete_task(task_id):
     conn.commit()
     conn.close()
 
-# def get_tasks():
-#     conn = sqlite3.connect(path_db)
-#     cursor = conn.cursor()
-#     cursor.execute(queries.select_task)
-#     tasks = cursor.fetchall() 
-#     conn.close()
-#     return tasks  
 
 
 def get_tasks(filter_type="all"):

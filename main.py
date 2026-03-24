@@ -2,7 +2,7 @@ import flet as ft
 from db import main_db
 
 def main(page: ft.Page):
-    page.title = 'ToDoList'
+    page.title = 'Список Покупок'
     page.theme_mode = ft.ThemeMode.DARK
 
     task_list = ft.Column()
@@ -92,16 +92,10 @@ def main(page: ft.Page):
             page.update()
 
 
-    task_input = ft.TextField(label='Введите задачу', expand=True, on_submit=add_task_db)
-    send_button = ft.ElevatedButton('SEND', on_click=add_task_db)
+    task_input = ft.TextField(label='Введите название товара', expand=True, on_submit=add_task_db)
+    send_button = ft.ElevatedButton('ADD', on_click=add_task_db)
 
-    # tasks = main_db.get_tasks()
-    # for task_id, task_text, completed, date in tasks:
-    #     task_list.controls.append(
-    #         view_tasks(task_id=task_id, task_text=task_text, completed=completed, date=date)
-    #     )
-
-    clear_button = ft.ElevatedButton("Очистить выполненные",on_click=clear_completed)
+    clear_button = ft.ElevatedButton("Очистить купленные",on_click=clear_completed)
     
     main_objects = ft.Row([task_input, send_button, clear_button])
 
@@ -115,9 +109,9 @@ def main(page: ft.Page):
     
 
     filter_buttons = ft.Row([
-        ft.ElevatedButton("All tasks", on_click=lambda e: set_filter("all")),
-        ft.ElevatedButton("in process",on_click=lambda e: set_filter("uncompleted")),
-        ft.ElevatedButton("Done",on_click=lambda e: set_filter("completed"))
+        ft.ElevatedButton("Все", on_click=lambda e: set_filter("all")),
+        ft.ElevatedButton("Некупленные",on_click=lambda e: set_filter("uncompleted")),
+        ft.ElevatedButton("Купленные",on_click=lambda e: set_filter("completed"))
     ],alignment=ft.MainAxisAlignment.SPACE_EVENLY)
 
 
