@@ -1,7 +1,7 @@
 import sqlite3
 from db import queries
 from config import path_db
-from datetime import datetime
+
 
 
 def init_db():
@@ -11,35 +11,26 @@ def init_db():
     print('БД подключена!')
   
 
-def add_task(task):
-    conn = sqlite3.connect(path_db)
-    cursor = conn.cursor()
-    current_date = datetime.now().strftime("%Y-%m-%d %H:%M")
 
-    cursor.execute(queries.insert_task, (task, 0, current_date))
-    conn.commit()
-    task_id = cursor.lastrowid 
-    conn.close()
-    return task_id
-
-def add_task(task):
+def add_task(task,counter=1):
     with sqlite3.connect(path_db) as conn:
         cursor = conn.cursor()
-        current_date = datetime.now().strftime("%Y-%m-%d %H:%M")
-        cursor.execute(queries.insert_task,(task,0,current_date))
+        cursor.execute(queries.insert_task,(task,0,counter))
         task_id = cursor.lastrowid 
     return task_id
 
-def update_task(task_id, new_task=None,completed=None):
-    conn = sqlite3.connect(path_db)
-    cursor = conn.cursor()
-    if new_task is not None:
-        cursor.execute(queries.update_task,(new_task, task_id))
-    elif completed is not None:
-        cursor.execute("UPDATE tasks SET completed = ? WHERE id = ?",(completed,task_id))
+def update_task(task_id, new_task=None, completed=None, counter=None):
+    with sqlite3.connect(path_db) as conn:
+        cursor = conn.cursor()
 
-    conn.commit()
-    conn.close()
+        if new_task is not None:
+            cursor.execute(queries.update_task_text, (new_task, task_id))
+
+        elif completed is not None:
+            cursor.execute(queries.update_task_completed, (completed, task_id))
+
+        elif counter is not None:
+            cursor.execute(queries.update_task_counter, (counter, task_id))
 
 def delete_task(task_id):
     conn = sqlite3.connect(path_db)
@@ -59,6 +50,8 @@ def get_tasks(filter_type="all"):
         cursor.execute(queries.select_task_completed)
     elif filter_type == "uncompleted":
         cursor.execute(queries.select_task_uncompleted)
+    else:
+        cursor.execute(queries.select_task) 
 
     tasks = cursor.fetchall()
     conn.close()

@@ -1,5 +1,0 @@
--- database: ./todo.db
-
-SELECT * FROM tasks;
-
-ALTER TABLE tasks ADD COLUMN date TEXT;

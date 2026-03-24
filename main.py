@@ -24,21 +24,21 @@ def main(page: ft.Page):
 
     def load_task():
         task_list.controls.clear()
-        for task_id, task, completed, date in main_db.get_tasks(filter_type=filter_type):
-            task_list.controls.append(view_tasks(task_id=task_id,task_text=task,completed=completed,date=date))
+        for task_id, task, completed, counter in main_db.get_tasks(filter_type=filter_type):
+            task_list.controls.append(view_tasks(task_id=task_id,task_text=task,completed=completed,counter=counter))
 
     def delete_task(task_id, row):
             main_db.delete_task(task_id=task_id)  
             task_list.controls.remove(row)        
             page.update()
 
-    def view_tasks(task_id, task_text,completed=None,date=None):
+    def view_tasks(task_id, task_text,completed=None,counter=None):
         task_field = ft.TextField(value=task_text, read_only=True, expand=True)
 
-        date_text = ft.Text(
-            value=date if date else "",
-            size=12,
-            color="grey"
+
+        counter_text = ft.Text(
+            value=str(counter if counter is not None else 0),
+            width=40
         )
 
         checkbox_task = ft.Checkbox(value=bool(completed),on_change=lambda e:toggle_task(task_id=task_id,is_completed=e.control.value))
@@ -68,7 +68,7 @@ def main(page: ft.Page):
 
         delete_button = ft.IconButton(icon=ft.Icons.DELETE,icon_color="red",on_click=lambda e: delete_task(task_id, row))
 
-        text_row = ft.Row([task_field,date_text],expand=True,alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
+        text_row = ft.Row([task_field,counter_text],expand=True,alignment=ft.MainAxisAlignment.SPACE_BETWEEN)
         row.controls = [checkbox_task, text_row, edit_button,save_button,delete_button]
 
         return row
@@ -81,23 +81,25 @@ def main(page: ft.Page):
     def add_task_db(_):
         if task_input.value:
             task = task_input.value
-            task_id = main_db.add_task(task=task)
-            print(f'Задача {task} успешно в БД! Его ID - {task_id}')
+            counter = int(counter_input.value) if counter_input.value else 1
 
-            tasks = main_db.get_tasks()
-            last_task = tasks[-1]
-            _, _, _, date = last_task
-            task_list.controls.append(view_tasks(task_id=task_id, task_text=task, date=date))
+            task_id = main_db.add_task(task=task, counter=counter)
+
+            task_list.controls.append(
+                view_tasks(task_id=task_id, task_text=task, counter=counter)
+            )
+
             task_input.value = None
+            counter_input.value = None  
             page.update()
 
-
     task_input = ft.TextField(label='Введите название товара', expand=True, on_submit=add_task_db)
+    counter_input = ft.TextField(label="Количество", width=100)
     send_button = ft.ElevatedButton('ADD', on_click=add_task_db)
 
     clear_button = ft.ElevatedButton("Очистить купленные",on_click=clear_completed)
     
-    main_objects = ft.Row([task_input, send_button, clear_button])
+    main_objects = ft.Row([task_input,counter_input, send_button, clear_button])
 
     def set_filter(filter_value):
         nonlocal filter_type
